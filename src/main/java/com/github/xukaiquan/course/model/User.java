@@ -1,15 +1,16 @@
 package com.github.xukaiquan.course.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name="user",schema = "public")
-public class User extends BaseEntity{
+@Table(name = "users", schema = "public")
+public class User extends BaseEntity {
 
     private String username;
     private String encryptedPassword;
-
 
     @Column(name = "username")
     public String getUsername() {
@@ -21,6 +22,7 @@ public class User extends BaseEntity{
     }
 
     @Column(name = "encrypted_password")
+    @JsonIgnore
     public String getEncryptedPassword() {
         return encryptedPassword;
     }

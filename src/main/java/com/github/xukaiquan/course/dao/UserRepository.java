@@ -9,13 +9,13 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface UserRepository extends JpaRepository<User,Integer> {
+public interface UserRepository extends JpaRepository<User, Integer> {
     //select * from user where status != OK
     //不是SQL 而是 JPQL
-    @Query(value = "select * from \"user\" where id <> 2",nativeQuery = true)
+    @Query(value = "select * from \"user\" where id <> 2", nativeQuery = true)
     List<User> findUserWhoseIdNotEqual2();
 
     @Modifying
-    @Query(value = "update \"user\" set status = 'DELETED' where id=:id",nativeQuery = true)
+    @Query(value = "update \"user\" set status = 'DELETED' where id=:id", nativeQuery = true)
     void deleteAllUsers();
 }

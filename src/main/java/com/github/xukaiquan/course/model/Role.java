@@ -1,16 +1,23 @@
 package com.github.xukaiquan.course.model;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.util.Set;
 
 @Entity
-@Table(name = "role",schema = "public")
-public class Role extends BaseEntity{
+@Table(name = "role", schema = "public")
+public class Role extends BaseEntity {
     private String name;
 
-    @Column(name = "name",nullable = false, length = 50)
+    @Column(name = "name", nullable = false, length = 50)
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -20,11 +27,10 @@ public class Role extends BaseEntity{
     private Set<Permission> permissions;
 
     @OneToMany
-    @JoinTable(
-            name = "permission",
+    @JoinTable(name = "permission",
             joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "id"))
+    @JsonIgnore
     public Set<Permission> getPermissions() {
         return permissions;
     }

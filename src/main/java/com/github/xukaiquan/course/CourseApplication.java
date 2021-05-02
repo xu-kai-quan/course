@@ -16,26 +16,26 @@ import java.util.stream.Collectors;
 @Controller
 @EnableJpaAuditing
 public class CourseApplication {
-	@Autowired
-	UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
-	public static void main(String[] args) {
-		SpringApplication.run(CourseApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(CourseApplication.class, args);
+    }
 
-	@GetMapping("/test")
-	public String testJpa(){
-		userRepository.findAll().forEach(user -> {
-			System.out.println("user: "+user.getUsername());
-			user.getRoles().forEach(role -> {
-				System.out.println("role: "+role.getName());
-				System.out.println(
-				role.getPermissions()
-						.stream().map(Permission::getName)
-						.collect(Collectors.toList()));
-			});
-		});
-		return "OK";
-	}
+    @GetMapping("/test")
+    public String testJpa() {
+        userRepository.findAll().forEach(user -> {
+            System.out.println("user: " + user.getUsername());
+            user.getRoles().forEach(role -> {
+                System.out.println("role: " + role.getName());
+                System.out.println(
+                        role.getPermissions()
+                                .stream().map(Permission::getName)
+                                .collect(Collectors.toList()));
+            });
+        });
+        return "OK";
+    }
 
 }

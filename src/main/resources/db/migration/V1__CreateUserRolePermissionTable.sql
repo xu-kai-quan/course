@@ -1,4 +1,4 @@
-CREATE TABLE "user" (
+CREATE TABLE users (
     id serial PRIMARY KEY,
     username VARCHAR (50) UNIQUE NOT NULL ,
     encrypted_password VARCHAR (50) NOT NULL ,
@@ -33,9 +33,9 @@ CREATE TABLE permission (
     status VARCHAR (10) NOT NULL DEFAULT 'OK'
 );
 
-INSERT INTO "user"(id,username,encrypted_password)values (1,'Student1','');
-INSERT INTO "user"(id,username,encrypted_password)values (2,'Teacher2','');
-INSERT INTO "user"(id,username,encrypted_password)values (3,'Admin3','');
+INSERT INTO users(id,username,encrypted_password)values (1,'Student1','');
+INSERT INTO users(id,username,encrypted_password)values (2,'Teacher2','');
+INSERT INTO users(id,username,encrypted_password)values (3,'Admin3','');
 
 INSERT INTO role(id,name)values (1,'学生');
 INSERT INTO role(id,name)values (2,'老师');
