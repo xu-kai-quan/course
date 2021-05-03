@@ -1,14 +1,31 @@
 package com.github.xukaiquan.course.controller;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.github.xukaiquan.course.configuration.Config;
+import com.github.xukaiquan.course.dao.UserRepository;
 import com.github.xukaiquan.course.model.HttpException;
 import com.github.xukaiquan.course.model.Session;
 import com.github.xukaiquan.course.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
+
+import static com.github.xukaiquan.course.configuration.Config.UserInterceptor.COOKIE_NAME;
 
 @RestController
 @RequestMapping("api/v1/")
 public class AuthController {
+    private BCrypt.Hasher hasher = BCrypt.withDefaults();
+    private BCrypt.Verifyer verifyer = BCrypt.verifyer();
+
+
+    @Autowired
+    UserRepository userRepository;
     /**
      * @api {post} /api/v1/user 注册
      * @apiName 注册
@@ -45,8 +62,31 @@ public class AuthController {
      * @param password 密码
      */
     @PostMapping("/user")
-    public Object register(String username, String password) {
-        return null;
+    public User register(@RequestParam("username") String username,
+                         @RequestParam("password") String password,
+                         HttpServletResponse response) {
+        if (!StringUtils.hasLength(username) || username.length() > 20 || username.length() < 6) {
+            throw new HttpException(400, "用户名必须在6到20之间");
+        }
+        if (!StringUtils.hasLength(password)) {
+            throw new HttpException(400, "密码不能为空");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        //1.数据库绝对不能明文存密码
+        //2.不要自己设计加密算法
+        user.setEncryptedPassword(hasher
+                .hashToString(12, password.toCharArray()));
+        try {
+            userRepository.save(user);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+//            throw new HttpException(409, "用户名已经被注册");
+        }
+        response.setStatus(201);
+
+        return user;
     }
 
     /**
@@ -85,8 +125,21 @@ public class AuthController {
      * @param password 密码
      */
     @PostMapping("/session")
-    public User login(String username, String password) {
-        return null;
+    public User login(@RequestParam("username") String username,
+                      @RequestParam("password") String password,
+                      HttpServletResponse response) {
+        User user = userRepository.findUsersByUsername(username);
+        if (user == null) {
+            throw new HttpException(401, "登录失败，用户名或密码不正确");
+        } else {
+            if (verifyer.verify(password.toCharArray(), user.getEncryptedPassword()).verified) {
+                String cookie = UUID.randomUUID().toString();
+                response.addCookie(new Cookie(COOKIE_NAME, cookie));
+                return user;
+            } else {
+                throw new HttpException(401, "登录失败，用户名或密码不正确");
+            }
+        }
     }
 
     /**

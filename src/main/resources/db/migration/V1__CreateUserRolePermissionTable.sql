@@ -52,3 +52,6 @@ INSERT INTO permission(name,role_id)values('上传课程',2);
 INSERT INTO permission(name,role_id)values('上传课程',3);
 INSERT INTO permission(name,role_id)values('管理用户',3);
 
+alter sequence users_id_seq restart with 4;
+alter sequence role_id_seq restart with 4;
+alter sequence user_role_id_seq restart with 4;

@@ -6,16 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
-    //select * from user where status != OK
     //不是SQL 而是 JPQL
-    @Query(value = "select * from \"user\" where id <> 2", nativeQuery = true)
-    List<User> findUserWhoseIdNotEqual2();
+//    @Query("SELECT u FROM User u WHERE u.username =?1 and u.encryptedPassword =?2")
+    User findUsersByUsername(String username);
 
-    @Modifying
-    @Query(value = "update \"user\" set status = 'DELETED' where id=:id", nativeQuery = true)
-    void deleteAllUsers();
+
 }

@@ -31,7 +31,7 @@ public class Config {
     }
 
     public static class UserInterceptor implements HandlerInterceptor {
-        public static String COOKIE_NAME = "COURSE_APP_SESSION_ID";
+        public static final String COOKIE_NAME = "COURSE_APP_SESSION_ID";
 
         @Autowired
         SessionDao sessionDao;
