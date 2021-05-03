@@ -1,9 +1,10 @@
 package com.github.xukaiquan.course.controller;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.github.xukaiquan.course.Service.UserRoleManagerService;
 import com.github.xukaiquan.course.configuration.Config;
 import com.github.xukaiquan.course.dao.SessionDao;
-import com.github.xukaiquan.course.dao.UserRepository;
+import com.github.xukaiquan.course.dao.userDao;
 import com.github.xukaiquan.course.model.HttpException;
 import com.github.xukaiquan.course.model.Session;
 import com.github.xukaiquan.course.model.User;
@@ -16,6 +17,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 
 import static com.github.xukaiquan.course.configuration.Config.UserInterceptor.COOKIE_NAME;
@@ -26,7 +28,7 @@ public class AuthController {
     private BCrypt.Hasher hasher = BCrypt.withDefaults();
     private BCrypt.Verifyer verifyer = BCrypt.verifyer();
     @Autowired
-    UserRepository userRepository;
+    userDao userDao;
     @Autowired
     SessionDao sessionDao;
     /**
@@ -82,7 +84,7 @@ public class AuthController {
         user.setEncryptedPassword(hasher
                 .hashToString(12, password.toCharArray()));
         try {
-            userRepository.save(user);
+            userDao.save(user);
         } catch (Throwable e) {
             if (e instanceof DataIntegrityViolationException) {
                 throw new HttpException(409, "用户名已经被注册");
@@ -134,7 +136,7 @@ public class AuthController {
     public User login(@RequestParam("username") String username,
                       @RequestParam("password") String password,
                       HttpServletResponse response) {
-        User user = userRepository.findUsersByUsername(username);
+        User user = userDao.findUsersByUsername(username);
         if (user == null) {
             throw new HttpException(401, "登录失败，用户名或密码不正确");
         } else {
@@ -233,4 +235,12 @@ public class AuthController {
         response.addCookie(cookie);
         response.setStatus(204);
     }
+    @Autowired
+    UserRoleManagerService userRoleManagerService;
+
+    @RequestMapping("/admin/users")
+    public List<User> getAllUsers(){
+        return userRoleManagerService.getAllUsers();
+    }
+
 }

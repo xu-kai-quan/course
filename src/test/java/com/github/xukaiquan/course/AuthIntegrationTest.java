@@ -148,6 +148,20 @@ public class AuthIntegrationTest {
         assertEquals(409, response.statusCode());
     }
 
+    @Test
+    public void onlyAdminCanSeeAllUsers() throws IOException, InterruptedException {
+        HttpResponse<String> response = get("/admin/users", "COURSE_APP_SESSION_ID=test_user_3");
+        assertEquals(200,response.statusCode());
+    }
+
+    @Test
+    public void nonAdminCanNotSeeAllUsers() throws IOException, InterruptedException {
+        HttpResponse<String> response = get("/admin/users", "COURSE_APP_SESSION_ID=test_user_1");
+        assertEquals(403,response.statusCode());
+    }
+
+
+
     public void get401IfNoPermission() {
 
     }
