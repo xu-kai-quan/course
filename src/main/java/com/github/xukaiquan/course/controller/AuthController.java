@@ -1,18 +1,21 @@
 package com.github.xukaiquan.course.controller;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.github.xukaiquan.course.configuration.Config;
+import com.github.xukaiquan.course.dao.SessionDao;
 import com.github.xukaiquan.course.dao.UserRepository;
 import com.github.xukaiquan.course.model.HttpException;
 import com.github.xukaiquan.course.model.Session;
 import com.github.xukaiquan.course.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.util.UUID;
 
 import static com.github.xukaiquan.course.configuration.Config.UserInterceptor.COOKIE_NAME;
@@ -22,10 +25,10 @@ import static com.github.xukaiquan.course.configuration.Config.UserInterceptor.C
 public class AuthController {
     private BCrypt.Hasher hasher = BCrypt.withDefaults();
     private BCrypt.Verifyer verifyer = BCrypt.verifyer();
-
-
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    SessionDao sessionDao;
     /**
      * @api {post} /api/v1/user 注册
      * @apiName 注册
@@ -81,8 +84,11 @@ public class AuthController {
         try {
             userRepository.save(user);
         } catch (Throwable e) {
-            throw new RuntimeException(e);
-//            throw new HttpException(409, "用户名已经被注册");
+            if (e instanceof DataIntegrityViolationException) {
+                throw new HttpException(409, "用户名已经被注册");
+            } else {
+                throw new RuntimeException(e);
+            }
         }
         response.setStatus(201);
 
@@ -90,39 +96,39 @@ public class AuthController {
     }
 
     /**
+     * @param username 用户名
+     * @param password 密码
      * @api {post} /api/v1/session 登录
      * @apiName 登录
      * @apiGroup 登录与鉴权
-     *
      * @apiHeader {String} Accept application/json
      * @apiHeader {String} Content-Type application/x-www-form-urlencoded
-     *
      * @apiParam {String} username 用户名
      * @apiParam {String} password 密码
      * @apiParamExample Request-Example:
-     *          username: Alice
-     *          password: MySecretPassword
-     *
+     * username: Alice
+     * password: MySecretPassword
      * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 201 Created
-     *     {
-     *       "user": {
-     *           "id": 123,
-     *           "username": "Alice"
-     *       }
-     *     }
-     *
+     * HTTP/1.1 201 Created
+     * {
+     * "user": {
+     * "id": 123,
+     * "username": "Alice"
+     * }
+     * }
      * @apiError 400 Bad Request 若用户的请求包含错误
-     *
      * @apiErrorExample Error-Response:
-     *     HTTP/1.1 400 Bad Request
-     *     {
-     *       "message": "Bad Request"
-     *     }
-     */
-    /**
-     * @param username 用户名
-     * @param password 密码
+     * HTTP/1.1 400 Bad Request
+     * {
+     * "message": "Bad Request"
+     * }
+     * @apiError 409 Conflict 若用户名已经被注册
+     * @apiErrorExample Error-Response:
+     * HTTP/1.1 409 Conflict
+     * {
+     * "message": "用户名已经被注册"
+     * }
+     * /**
      */
     @PostMapping("/session")
     public User login(@RequestParam("username") String username,
@@ -134,6 +140,12 @@ public class AuthController {
         } else {
             if (verifyer.verify(password.toCharArray(), user.getEncryptedPassword()).verified) {
                 String cookie = UUID.randomUUID().toString();
+
+                Session session = new Session();
+                session.setCookie(cookie);
+                session.setUser(user);
+                sessionDao.save(session);
+
                 response.addCookie(new Cookie(COOKIE_NAME, cookie));
                 return user;
             } else {
@@ -204,10 +216,21 @@ public class AuthController {
      *     }
      */
     /**
-     * @return 已登录的用户
+     * @param response Http response
      */
     @DeleteMapping("/session")
-    public User logout() {
-        return null;
+    @Transactional
+    public void logout(HttpServletResponse response,
+                       HttpServletRequest request) {
+        if (Config.UserContext.getCurrentUser() == null) {
+            throw new HttpException(401, "Unauthorized");
+        }
+        //XXXUtility
+        Config.getCookie(request)
+                .ifPresent(sessionDao::deleteByCookie);
+        Cookie cookie = new Cookie(COOKIE_NAME, "");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        response.setStatus(204);
     }
 }

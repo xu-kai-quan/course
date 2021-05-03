@@ -6,14 +6,26 @@ import com.github.xukaiquan.course.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.github.xukaiquan.course.configuration.Config.UserInterceptor.COOKIE_NAME;
+
 @Configuration
-public class Config {
+public class Config implements WebMvcConfigurer {
+    @Autowired
+    SessionDao sessionDao;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new UserInterceptor(sessionDao));
+    }
 
     public static class UserContext {
         //ThreadLocal用完之后一定要清理
@@ -30,21 +42,32 @@ public class Config {
         }
     }
 
+    public static Optional<String> getCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return Optional.empty();
+        }
+        Cookie[] cookies = request.getCookies();
+        return Stream.of(cookies)
+                .filter(cookie -> cookie.getName().equals(COOKIE_NAME))
+                .map(Cookie::getValue)
+                .findFirst();
+    }
+
+
     public static class UserInterceptor implements HandlerInterceptor {
         public static final String COOKIE_NAME = "COURSE_APP_SESSION_ID";
 
         @Autowired
         SessionDao sessionDao;
 
+        public UserInterceptor(SessionDao sessionDao) {
+            this.sessionDao = sessionDao;
+        }
+
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
             //从数据库中根据cookie取出用户信息，并放到当前的 线程上下文
-            Cookie[] cookies = request.getCookies();
-
-            Stream.of(cookies)
-                    .filter(cookie -> cookie.getName().equals(COOKIE_NAME))
-                    .map(Cookie::getValue)
-                    .findFirst()
+            getCookie(request)
                     .flatMap(sessionDao::findByCookie)
                     .map(Session::getUser)
                     .ifPresent(UserContext::setCurrentUser);
