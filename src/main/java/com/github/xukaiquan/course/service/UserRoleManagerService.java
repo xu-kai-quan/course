@@ -1,7 +1,7 @@
-package com.github.xukaiquan.course.Service;
+package com.github.xukaiquan.course.service;
 
 import com.github.xukaiquan.course.annotation.Admin;
-import com.github.xukaiquan.course.dao.userDao;
+import com.github.xukaiquan.course.dao.UserDao;
 import com.github.xukaiquan.course.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class UserRoleManagerService {
     @Autowired
-    userDao userDao;
+    UserDao userDao;
 
     @Admin
     public List<User> getAllUsers(){

@@ -10,15 +10,16 @@ import org.springframework.context.annotation.Configuration;
 
 @Aspect
 @Configuration
-public class AdminAopManager {
+public class AopManager {
     @Around("@annotation(com.github.xukaiquan.course.annotation.Admin)")//@Admin标识的方法都被我管起来
-    public Object check(ProceedingJoinPoint joinPoint) throws Throwable{
+    public Object checkAdmin(ProceedingJoinPoint joinPoint) throws Throwable {
         User currentUser = Config.UserContext.getCurrentUser();
-        if (currentUser.getRoles().stream()
-        .anyMatch(role -> "管理员".equals(role.getName()))){
+        if (currentUser == null) {
+            throw new HttpException(401, "没有登录！");
+        } else if (currentUser.getRoles().stream().anyMatch(role -> "管理员".equals(role.getName()))) {
             return joinPoint.proceed();
-        }else {
-            throw new HttpException(403,"没有权限");
+        } else {
+            throw new HttpException(403, "没有权限！");
         }
     }
 }

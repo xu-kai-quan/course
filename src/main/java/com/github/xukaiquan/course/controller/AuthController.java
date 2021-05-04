@@ -1,10 +1,10 @@
 package com.github.xukaiquan.course.controller;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.github.xukaiquan.course.Service.UserRoleManagerService;
+import com.github.xukaiquan.course.service.UserRoleManagerService;
 import com.github.xukaiquan.course.configuration.Config;
 import com.github.xukaiquan.course.dao.SessionDao;
-import com.github.xukaiquan.course.dao.userDao;
+import com.github.xukaiquan.course.dao.UserDao;
 import com.github.xukaiquan.course.model.HttpException;
 import com.github.xukaiquan.course.model.Session;
 import com.github.xukaiquan.course.model.User;
@@ -28,7 +28,7 @@ public class AuthController {
     private BCrypt.Hasher hasher = BCrypt.withDefaults();
     private BCrypt.Verifyer verifyer = BCrypt.verifyer();
     @Autowired
-    userDao userDao;
+    UserDao userDao;
     @Autowired
     SessionDao sessionDao;
     /**
