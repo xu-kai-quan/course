@@ -2,12 +2,18 @@ package com.github.xukaiquan.course.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.List;
 
 @Entity
 @Table(name = "users", schema = "public")
-public class User extends BaseEntity {
+public class User extends BaseStatusEntity {
 
     private String username;
     private String encryptedPassword;

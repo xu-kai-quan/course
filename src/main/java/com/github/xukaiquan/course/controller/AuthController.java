@@ -20,7 +20,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-import static com.github.xukaiquan.course.configuration.Config.UserInterceptor.COOKIE_NAME;
+import static com.github.xukaiquan.course.configuration.UserInterceptor.COOKIE_NAME;
+
 
 @RestController
 @RequestMapping("api/v1/")

@@ -4,7 +4,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import java.util.Date;
 
 @EntityListeners(AuditingEntityListener.class)
@@ -12,8 +17,8 @@ import java.util.Date;
 public class BaseEntity {
     private Integer id;
     private Date createdAt;
-    private Date updateAt;
-    private Status status = Status.OK;
+    private Date updatedAt;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +30,7 @@ public class BaseEntity {
     public void setId(Integer id) {
         this.id = id;
     }
+
 
     @Column(name = "created_at")
     @CreatedDate
@@ -38,23 +44,11 @@ public class BaseEntity {
 
     @Column(name = "updated_at")
     @LastModifiedDate
-    public Date getUpdateAt() {
-        return updateAt;
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdateAt(Date updateAt) {
-        this.updateAt = updateAt;
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
-
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-
 }

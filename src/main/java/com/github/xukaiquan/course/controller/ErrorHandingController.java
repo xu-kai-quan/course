@@ -20,7 +20,6 @@ public class ErrorHandingController {
 
         Map<String, Object> jsonObject = new HashMap<>();
         jsonObject.put("message", exception.getMessage());
-
         response.getOutputStream().write(objectMapper.writeValueAsBytes(jsonObject));
         response.getOutputStream().flush();
     }
