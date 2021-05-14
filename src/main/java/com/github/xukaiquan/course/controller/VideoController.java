@@ -24,9 +24,9 @@ import java.util.Map;
 public class VideoController {
     @GetMapping("/video/{id}")
     public String getVideo(@PathVariable("id") String id) {
-        String accessKeyId = "LTAI5tRCK8iHCEz8CfabywtQ"; // 请填写您的AccessKeyId。
-        String accessKeySecret = "kfHSgqcFLcuTOj0gaj9ull8P6gMq5v"; // 请填写您的AccessKeySecret。
-        String endpoint = "oss-cn-shanghai.aliyuncs.com"; // 请填写您的 endpoint。
+        String accessKeyId = ""; // 请填写您的AccessKeyId。
+        String accessKeySecret = ""; // 请填写您的AccessKeySecret。
+        String endpoint = ""; // 请填写您的 endpoint。
         // 填写不包含Bucket名称在内的Object完整路径。
         String objectName = "course-12345/" + id + ".mp4";
         // 创建OSSClient实例。
