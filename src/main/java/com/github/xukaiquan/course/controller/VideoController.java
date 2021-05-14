@@ -45,10 +45,10 @@ public class VideoController {
 
     @GetMapping("/course/{id}/token")
     public Object getToken(@PathVariable("id") Integer courseId) {
-        String accessKeyId = "LTAI5tRCK8iHCEz8CfabywtQ"; // 请填写您的AccessKeyId。
-        String accessKeySecret = "kfHSgqcFLcuTOj0gaj9ull8P6gMq5v"; // 请填写您的AccessKeySecret。
-        String endpoint = "oss-cn-shanghai.aliyuncs.com"; // 请填写您的 endpoint。
-        String bucket = "alipayss-xu"; // 请填写您的 bucketname 。
+        String accessKeyId = ""; // 请填写您的AccessKeyId。
+        String accessKeySecret = ""; // 请填写您的AccessKeySecret。
+        String endpoint = ""; // 请填写您的 endpoint。
+        String bucket = ""; // 请填写您的 bucketname 。
         String host = "http://" + bucket + "." + endpoint; // host的格式为 bucketname.endpoint
         String dir = "course-" + courseId + "/"; // 用户上传文件时指定的前缀。
 
